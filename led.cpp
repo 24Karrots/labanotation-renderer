@@ -244,14 +244,14 @@
 #include <stdio.h> 
 #include <string.h>
 
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 768
+#define WINDOW_WIDTH 700 
+#define WINDOW_HEIGHT 650 
 #define WINDOW_Y  20
 #define WINDOW_X 300
 #define WINDOW_MODE 
 #define    ESCAPE     27
 #define    MAXINT 1073741824
-#define    BMAX      128      /* input text buffer size */
+#define    BMAX      128     /* input text buffer size */ 
 #define    IMAX    65535
 #define    SMAX    10000      /* maximum number of symbols on score */
 #define    TMAX        7      /* max number of characters in a command box */
@@ -328,7 +328,7 @@
 
 char oldkeys[25] = {'#',
 		'1','2','3','4','5','[',']','C','6','7','8','9','0',
-		'(',')','.','_','+','~','<','>','\/','|','\\'};
+		'(',')','.','_','+','~','<','>','/','|','\\'};
 
 char ptitle[BMAX];     // program title
 
@@ -421,9 +421,9 @@ char infile[BMAX];
 char outfile[BMAX];
 char postfile[BMAX]; 
 char comments[BMAX][BMAX];
-char finname[BMAX];
-char foutname[BMAX];
-char fpostname[BMAX];
+char finname[BMAX + 10];
+char foutname[BMAX + 10];
+char fpostname[BMAX + 10];
 char prevmove[BMAX];    /* previous domove command */
 char rootname[BMAX] = {'l','e','d','\0'};
 
@@ -1244,9 +1244,9 @@ void setinfile(void)
 	int  c;
 	char key;
 
-	if (rootname[0] != NULL)
+	if (rootname[0] != '\0')
 	{
-	   sprintf(finname,"%s.lbn",rootname);
+	   snprintf(finname, sizeof(finname), "%s.lbn",rootname);
 	   printf("\nCurrent input file name is %s\n",finname);
 	   printf("Please hit 'Enter' to use this name\n");
        printf("else type root name of .lbn input file,\n");
@@ -1260,7 +1260,7 @@ another:
 	rootname[c++] = key; 
 	goto another;
 gotit:
-	sprintf(finname,"%s.lbn",rootname);
+	snprintf(finname, sizeof(finname), "%s.lbn",rootname);
 	if ((INFILE = fopen(finname,"r")) == NULL)
 	{
            if (INFILE) fclose(INFILE);
@@ -1268,7 +1268,7 @@ gotit:
            printf("\n\n oops: cannot open %s for reading?\n",
 			   finname);
 		   for (  c = 0 ; c < BMAX ; ++c )
-              rootname[c] = NULL;
+              rootname[c] = '\0';
 	}
 	else
 	{
@@ -1289,9 +1289,9 @@ void setpsfile(void)
 	int  c;
 	char key;
 
-	if (rootname[0] != NULL)
+	if (rootname[0] != '\0')
 	{
-	   sprintf(fpostname,"%s.ps",rootname);
+	   snprintf(fpostname, sizeof(fpostname), "%s.ps",rootname);
 	   printf("\nCurrent Postscript file name is %s\n",fpostname);
 	   printf("Please hit 'Enter' to use this name,\n");
        printf("else type root name of required .ps file:\n");
@@ -1305,20 +1305,20 @@ another:
 	if (c == 0)
 	{
 		for (  c = 0 ; c < BMAX ; ++c )
-           rootname[c] = NULL;
+           rootname[c] = '\0';
 		c = 0;
 	}
 	rootname[c++] = key; 
 	goto another;
 gotit:
-	sprintf(fpostname,"%s.ps",rootname);
+	snprintf(fpostname, sizeof(fpostname), "%s.ps",rootname);
 	if ((POSTFILE = fopen(fpostname,"w")) == NULL)
 	{
            if (POSTFILE) fclose(POSTFILE);
            printf("\n\n oops, cannot open %s for writing?\n",
               fpostname);
            for (  c = 0 ; c < BMAX ; ++c )
-              rootname[c] = NULL;
+              rootname[c] = '\0';
 	}
 	else
 	   printf("\n opened output postscript file %s OK for writing\n",fpostname);
@@ -1912,12 +1912,14 @@ void makebar(int s, int j, int x, int y, int w, char l)
 } /* makebar */
 /**********************************************/
 
-int digits(int n)
+extern "C" int digits(int n);
 /*
-   find number of digits in "n"
+int digits(int n)
 
-   called by dobarnumber,
-*/
+//   find number of digits in "n"
+
+//   called by dobarnumber,
+
 {
    int k;
    int tens;
@@ -1928,7 +1930,10 @@ int digits(int n)
       ++k;
    }
    return(k);
-} /* digits */
+}
+*/
+// digits 
+
 /**************************************************/
 
 void dobarnumber(int n, int x, int y)
@@ -2022,7 +2027,7 @@ void unbar(void)
       if ( (m == MKEYS) && ( (segs[j].x < xlimit) || (segs[j].level == 'B')) )
       {
 	i = segs[j].item;
-	if( ((i>5) && (i<8)) || (i>13) && (i!=17) ) //numbers, C, _ symbols wont disappear
+	if( ((i>5) && (i<8)) || ((i>13) && (i!=17)) ) //numbers, C, _ symbols wont disappear
 	  delseg(j);
       }
    }
@@ -2072,7 +2077,7 @@ void drawbars(void)
 
 */
 {
-   int bleft;
+// int bleft;
    int bot;
    int bntop;
    int bytop;
@@ -2093,7 +2098,7 @@ void drawbars(void)
    r = 0;
    bytop = -1;
    bntop = -1;
-   bleft = xbot;
+// bleft = xbot;
    unbar();
 // find right end of bar lines -
    for (j = SCORE; j < scoretop; ++j)
@@ -2274,7 +2279,7 @@ void saveas(void)
 	char key;
 
 start:
-	sprintf(foutname,"%s.lbn",rootname);
+	snprintf(foutname, sizeof(foutname), "%s.lbn",rootname);
 	printf("\nCurrent output file name is %s\n",foutname);
 	printf("Please hit 'Enter' to use this name\n");
     printf("else type root name of .lbn output file,\n");
@@ -2285,20 +2290,20 @@ another:
 	if (c == 0)
 	{
 		for (  c = 0 ; c < BMAX ; ++c )
-           rootname[c] = NULL;
+           rootname[c] = '\0';
 		c = 0;
 	}
 	rootname[c++] = key; 
 	goto another;
 gotit:
-	sprintf(foutname,"%s.lbn",rootname);
+	snprintf(foutname, sizeof(foutname), "%s.lbn",rootname);
 	if ((OUTFILE = fopen(foutname,"w")) == NULL)
 	{
            if (OUTFILE) fclose(OUTFILE);
            printf("\n\n oops: cannot open file %s for writing?\n",
 			   foutname);
 		   for (  c = 0 ; c < BMAX ; ++c )
-              rootname[c] = NULL;
+              rootname[c] = '\0';
            goto start;
 	}
 	printf("\nopened output file %s OK for writing\n",foutname);
@@ -2323,7 +2328,7 @@ void createlow(void)
    segs[LOW].item = 0;
    segs[LOW].step = 1;
    segs[LOW].level = low;
-   sprintf(segs[LOW].text,"");
+   segs[LOW].text[0] = '\0';
    segs[LOW].length = 0;
    createsegment(LOW);
    dopolygonrel(LOW,cmdmenudx,cmdmenudy,5);
@@ -2347,7 +2352,7 @@ void createmiddle(void)
    segs[MIDDLE].menu = MIDDLE;
    segs[MIDDLE].item = 0;
    segs[MIDDLE].level = middle;
-   sprintf(segs[MIDDLE].text,"");
+   segs[MIDDLE].text[0] = '\0';
    segs[MIDDLE].length = 0;
    createsegment(MIDDLE);
    dopolygonrel(MIDDLE,cmdmenudx,cmdmenudy,5);
@@ -2371,7 +2376,7 @@ void createhigh(void)
    segs[HIGH].menu = HIGH;
    segs[HIGH].item = 0;
    segs[HIGH].level = high;
-   sprintf(segs[HIGH].text,"");
+   segs[HIGH].text[0] = '\0';
    segs[HIGH].length = 0;
    createsegment(HIGH);
    dopolygonrel(HIGH,cmdmenudx,cmdmenudy,5);
@@ -2644,7 +2649,7 @@ void createexpand(void)
    segs[EXPAND].step = 1;
    segs[EXPAND].menu = EXPAND;
    segs[EXPAND].item = 0;
-   sprintf(segs[EXPAND].text,"");
+   segs[EXPAND].text[0] = '\0';
    segs[EXPAND].length = 0;
    createsegment(EXPAND);
    linerel(segs[EXPAND].w,0);
@@ -2672,7 +2677,7 @@ void createcontract(void)
    segs[CONTRACT].step = 1;
    segs[CONTRACT].menu = CONTRACT;
    segs[CONTRACT].item = 0;
-   sprintf(segs[CONTRACT].text,"");
+   segs[CONTRACT].text[0] = '\0';
    segs[CONTRACT].length = 0;
    createsegment(CONTRACT);
    linerel(segs[CONTRACT].w,0);
@@ -2875,7 +2880,7 @@ void createdirmenu(int x, int y)
    segs[MDIRN].y = dirmy;
    segs[MDIRN].w = MSIZE;
    segs[MDIRN].h = 2*MSIZE;
-   sprintf(segs[MDIRN].text,"");
+   segs[MDIRN].text[0] = '\0';
    segs[MDIRN].length = 0;
    createsegment(MDIRN);
    polylinerel(dirmenudx,dirmenudy,5);
@@ -2892,7 +2897,7 @@ void createdirmenu(int x, int y)
       segs[s].level = middle;
       segs[s].step = (segs[s].h+1)/6;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -2917,7 +2922,7 @@ void createfacmenu(int x, int y)
    segs[MFACE].h = 2*MSIZE;
    segs[MFACE].step = facstep;
    segs[MFACE].level = blank;
-   sprintf(segs[MFACE].text,"");
+   segs[MFACE].text[0] = '\0';
    segs[MFACE].length = 0;
    createsegment(MFACE);
    polylinerel(facmenudx,facmenudy,5);
@@ -2935,7 +2940,7 @@ void createfacmenu(int x, int y)
       segs[s].step = facstep;
       segs[s].level = blank;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -2958,7 +2963,7 @@ void createpinmenu(int x, int y)
    segs[MPINS].w = MSIZE;
    segs[MPINS].h = 2*MSIZE;
    segs[MPINS].step = pinstep;
-   sprintf(segs[MPINS].text,"");
+   segs[MPINS].text[0] = '\0';
    segs[MPINS].length = 0;
    createsegment(MPINS);
    polylinerel(pinmenudx,pinmenudy,5);
@@ -2976,7 +2981,7 @@ void createpinmenu(int x, int y)
       segs[s].step = pinstep;
       segs[s].level = low;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -2999,7 +3004,7 @@ void createlimmenu(int x, int y)
    segs[MLIMB].step = limstep;
    segs[MLIMB].w = MSIZE;
    segs[MLIMB].h = 2*MSIZE;
-   sprintf(segs[MLIMB].text,"");
+   segs[MLIMB].text[0] = '\0';
    segs[MLIMB].length = 0;
    createsegment(MLIMB);
    polylinerel(limmenudx,limmenudy,5);
@@ -3017,7 +3022,7 @@ void createlimmenu(int x, int y)
       segs[s].item = j;
       segs[s].menu = MLIMB;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -3040,7 +3045,7 @@ void createvolmenu(int x, int y)
    segs[MVOLM].w = MSIZE;
    segs[MVOLM].h = MSIZE;
    segs[MVOLM].step = volstep;
-   sprintf(segs[MVOLM].text,"");
+   segs[MVOLM].text[0] = '\0';
    segs[MVOLM].length = 0;
    createsegment(MVOLM);
    polylinerel(volmenudx,volmenudy,5);
@@ -3058,7 +3063,7 @@ void createvolmenu(int x, int y)
       segs[s].step = volstep;
       segs[s].menu = MVOLM;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -3080,7 +3085,7 @@ void createaremenu(int x, int y)
    segs[MAREA].y = aremy;
    segs[MAREA].w = MSIZE;
    segs[MAREA].h = MSIZE;
-   sprintf(segs[MAREA].text,"");
+   segs[MAREA].text[0] = '\0';
    segs[MAREA].length = 0;
    segs[MAREA].step = arestep;
    createsegment(MAREA);
@@ -3099,7 +3104,7 @@ void createaremenu(int x, int y)
       segs[s].step = arestep;
       segs[s].menu = MAREA;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -3124,7 +3129,7 @@ void createrotmenu(int x, int y)
    segs[MROTN].menu = MROTN;
    segs[MROTN].item = 0;
    segs[MROTN].level = middle;
-   sprintf(segs[MROTN].text,"");
+   segs[MROTN].text[0] = '\0';
    segs[MROTN].length = 0;
    createsegment(MROTN);
    polylinerel(rotmenudx,rotmenudy,5);
@@ -3142,7 +3147,7 @@ void createrotmenu(int x, int y)
       segs[s].h = 6*segs[s].step - 2;
       segs[s].level = middle;
       segs[s].ok = TRUE;
-      sprintf(segs[s].text,"");
+      segs[s].text[0] = '\0';
       segs[s].length = 0;
       drawsymbol(s);
    }
@@ -3168,7 +3173,7 @@ void createkeymenu(int x, int y)
    segs[MKEYS].menu = MKEYS;
    segs[MKEYS].item = 0;
    segs[MKEYS].step = keystep;
-   sprintf(segs[MKEYS].text,"");
+   segs[MKEYS].text[0] = '\0';
    segs[MKEYS].length = 0;
    createsegment(MKEYS);
    polylinerel(keymenudx,keymenudy,5);
@@ -3211,7 +3216,7 @@ void createmismenu(int x, int y)
    segs[MMISC].menu = MMISC;
    segs[MMISC].item = 0;
    segs[MMISC].step = misstep;
-   sprintf(segs[MMISC].text,"");
+   segs[MMISC].text[0] = '\0';
    segs[MMISC].length = 0;
    createsegment(MMISC);
    polylinerel(mismenudx,mismenudy,5);
@@ -3263,7 +3268,7 @@ void createwaymenu(int x, int y)
    segs[MWAYS].menu = MWAYS;
    segs[MWAYS].item = 0;
    segs[MWAYS].step = waystep;
-   sprintf(segs[MWAYS].text,"");
+   segs[MWAYS].text[0] = '\0';
    segs[MWAYS].length = 0;
    createsegment(MWAYS);
    polylinerel(waymenudx,waymenudy,5);
@@ -3309,7 +3314,7 @@ void createscroll(void)
    segs[SCROLLUP].menu = SCROLLUP;
    segs[SCROLLUP].item = 0;
    segs[SCROLLUP].level = 'B';
-   sprintf(segs[SCROLLUP].text,"");
+   segs[SCROLLUP].text[0] = '\0';
    segs[SCROLLUP].length = 0;
    createsegment(SCROLLUP);
    moveabs(segs[SCROLLUP].x,segs[SCROLLUP].y);
@@ -3331,7 +3336,7 @@ void createscroll(void)
    segs[SCROLLDN].step = 1;
    segs[SCROLLDN].menu = SCROLLDN;
    segs[SCROLLDN].item = 0;
-   sprintf(segs[SCROLLDN].text,"");
+   segs[SCROLLDN].text[0] = '\0';
    segs[SCROLLDN].length = 0;
    createsegment(SCROLLDN);
    moveabs(segs[SCROLLDN].x,segs[SCROLLDN].y);
@@ -4082,7 +4087,7 @@ void lbnread(void)
    setbarsp();
    drawbars();
    fixscore();
-   sprintf(foutname,finname);
+   snprintf(foutname, sizeof(foutname), finname);
    if (INFILE) fclose(INFILE);
    createopen();
 } /* lbnread */
@@ -4133,7 +4138,7 @@ void getsize(void)
    {
       setf = TRUE;
 	  for (  c = 0 ; c < BMAX ; ++c )
-           rootname[c] = NULL;
+           rootname[c] = '\0';
 	  rootname[0] = first;
       goto done;
    }
@@ -4153,7 +4158,7 @@ void getsize(void)
       setw = FALSE;
       seth = FALSE;
 	  for (  c = 0 ; c < BMAX ; ++c )
-        rootname[c] = NULL;
+        rootname[c] = '\0';
 	  rootname[0] = first;
       rootname[1] = second;
 	  c = 2;
@@ -4181,14 +4186,14 @@ done:
    ymax = ytop;
    if (setf == TRUE)
    {
-      sprintf(finname,"%s.lbn",rootname);
+      snprintf(finname, sizeof(finname), "%s.lbn",rootname);
       if ((INFILE = fopen(finname,"r")) == NULL)
       {
          if (INFILE) fclose(INFILE);
              printf("\n\n oops: cannot open %s for reading?\n",
 				 finname);
          for (  c = 0 ; c < BMAX ; ++c )
-            rootname[c] = NULL;
+            rootname[c] = '\0';
          goto out;
       }
       printf("\n opened input file %s OK for reading\n",finname);
@@ -4196,7 +4201,7 @@ done:
    }
    else
      for (  c = 0 ; c < BMAX ; ++c )
-        rootname[c] = NULL;
+        rootname[c] = '\0';
 out:
 	;
 } /* getsize */
@@ -4245,7 +4250,7 @@ void setup(void)
 	button = GLUT_UP;
 	saving = FALSE;
 	sprintf(prevmove,"100 100 moveto\n");
-	sprintf(foutname,"led.lbn");
+	snprintf(foutname, sizeof(foutname), "led.lbn");
 } /* setup */
 /****************************************/
 
@@ -4705,7 +4710,7 @@ void docommand(int c)
 
       case SAVE:
 		  printf("save back into input file %s\n",finname);
-		  sprintf(foutname,"%s",finname);
+		  snprintf(foutname, sizeof(foutname), "%s",finname);
 		  openout = TRUE;
 		  if ((OUTFILE = fopen(foutname,"w")) == NULL)
 		  {
@@ -4808,6 +4813,9 @@ void checkeys(unsigned char key, int x, int y)
           help, clear, makestaff.
 */
 { 
+    (void)x;
+    (void)y;
+    // to suppress warnings
 	if (key == 'b')
 	{
 		printf("key 'b': draw barlines\n");
@@ -4924,6 +4932,7 @@ void mouseclick(GLint b, GLint action, GLint mx, GLint mmy)
 	called by main, (gluMouseFunc)
 */
 {
+   (void)b; // to suppress warning
    int n;
    int my;
    int s;
